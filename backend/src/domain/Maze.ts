@@ -25,4 +25,14 @@ export class Maze {
 
     return areCoordinatesValid
   }
+
+  public validateBoardTileAvailability(x: number, y: number): boolean {
+    const areBoardCoordinatesValid = this.validateBoardCoordinates(x, y)
+
+    if (!areBoardCoordinatesValid)
+      return false
+
+    const isBoardTileAvailable = !!this.board[y]?.[x]
+    return isBoardTileAvailable
+  }
 }
