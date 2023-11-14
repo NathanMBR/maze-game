@@ -11,4 +11,18 @@ export class Maze {
       .fill(0)
       .map(() => new Array(width).fill(0))
   }
+
+
+  public validateBoardCoordinates(x: number, y: number): boolean {
+    const boardHeight = this.board.length
+    const boardWidth = this.board[0]?.length || 0
+
+    const areCoordinatesValid =
+      x < 0 ||
+      y < 0 ||
+      x >= boardWidth ||
+      y >= boardHeight
+
+    return areCoordinatesValid
+  }
 }
