@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node .",
-    "qs": "tsc && node ."
+    "dev": "node -r dotenv/config .",
+    "qs": "tsc && node -r dotenv/config ."
   },
   "dependencies": {
     "socket.io": "^4.7.2"
