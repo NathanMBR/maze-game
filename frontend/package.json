@@ -1,0 +1,26 @@
+{
+  "name": "maze-game-frontend",
+  "description": "Multiplayer maze game made with TypeScript - Frontend",
+  "version": "0.0.1",
+  "type": "module",
+  "author": "NathanMBR",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NathanMBR/maze-game"
+  },
+  "engines": {
+    "node": ">=18.14.0",
+    "pnpm": ">=8.7.1"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  }
+}

@@ -1,0 +1,16 @@
+body {
+  text-align: center;
+  margin: 0 0 0 0;
+}
+
+#game {
+  border: solid 1px black;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  image-rendering: -mor-crisp-edges;
+  margin-top: 10px;
+}
+
+button {
+  margin-top: 10px;
+}
