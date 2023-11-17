@@ -1,11 +1,33 @@
 import { Server } from "socket.io"
+
+import {
+  createMatrix,
+  getMazePath,
+  getPixelRepresentation
+} from "./domain"
 import { PORT } from "./settings"
 
-const io = new Server()
+const mazeWidth = 30
+const mazeHeight = 30
 
-io.on("connection", socket => {
-  console.log(`Socket with ID ${socket.id} connected`)
+const mazePath = getMazePath(createMatrix(mazeWidth, mazeHeight))
+const maze = getPixelRepresentation(mazePath)
+
+const io = new Server(PORT, {
+  cors: {
+    origin: "*"
+  }
 })
 
-io.listen(PORT)
-console.log(`Websocket connection established at port ${PORT}`)
+io.on("connection", socket => {
+  socket.emit("maze", {
+    mazePath,
+    maze,
+    dimensions: {
+      width: mazeWidth,
+      height: mazeHeight
+    }
+  })
+})
+
+console.log(`Server started at port ${PORT}`)
