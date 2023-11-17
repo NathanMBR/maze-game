@@ -1,3 +1,3 @@
-export * from "./Maze"
+export * from "./Game"
 
 export * from "./types"
