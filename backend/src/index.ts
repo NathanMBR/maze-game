@@ -1,4 +1,4 @@
-import { Server, Socket } from "socket.io"
+import { Server } from "socket.io"
 
 import {
   Player,
@@ -9,11 +9,14 @@ import {
   ServerToClientEvents,
   Coordinates
 } from "./domain"
-import { getRandomInteger, isMazeTileOccupied } from './utils';
+import {
+  getRandomInteger,
+  isMazeTileAvailable
+} from './utils';
 import { PORT } from "./settings"
 
-const mazeWidth = 30
-const mazeHeight = 30
+const mazeWidth = 10
+const mazeHeight = 10
 
 const mazePath = getMazePath(createMatrix(mazeWidth, mazeHeight))
 const maze = getPixelRepresentation(mazePath)
@@ -73,7 +76,7 @@ io.on("connection", socket => {
       y: direction === "DOWN" ? player.position.y + 1 : direction === "UP" ? player.position.y - 1 : player.position.y
     }
 
-    const isDirectionAvailable = isMazeTileOccupied(maze, position.x, position.y)
+    const isDirectionAvailable = isMazeTileAvailable(maze, position.x, position.y)
     if (!isDirectionAvailable)
       return
 
