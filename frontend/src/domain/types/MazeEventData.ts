@@ -1,4 +1,5 @@
 import { Maze } from "./Maze"
+import { Player } from "./Player"
 
 export type MazeEventData = {
   mazePath: Maze
@@ -7,4 +8,5 @@ export type MazeEventData = {
     width: number
     height: number
   }
+  player: Player
 }
