@@ -4,22 +4,25 @@ import { io, Socket } from "socket.io-client"
 
 import {
   ServerToClientEvents,
-  MazeEventData
+  ClientToServerEvents,
+  MazeEventData,
+  Direction,
 } from "./domain"
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game")!
 const ctx = canvas.getContext("2d")!
 
 const gameProportionInPixels = 10
-
-let animationFrameId: number | undefined
-
-const socket: Socket<ServerToClientEvents> = io("http://localhost:3000")
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io("http://localhost:3000")
 
 let mazeData: MazeEventData
 let socketId = ""
+let isRendering = false
 
 const renderScreen = () => {
+  if (!isRendering)
+    return
+
   const {
     dimensions,
     maze,
@@ -30,7 +33,7 @@ const renderScreen = () => {
   const colors = {
     mazeWall: "#000",
     enemyPlayer: "#F00",
-    currentPlayer: "#090"
+    currentPlayer: "#0C0"
   }
 
   canvas.width = (2 * dimensions.width - 1) * gameProportionInPixels
@@ -68,12 +71,30 @@ const renderScreen = () => {
   requestAnimationFrame(renderScreen)
 }
 
-socket.on("maze", data => {
-  console.log(data)
-
-  mazeData = data
+socket.on("connect", () => {
   socketId = socket.id
 
-  if (!animationFrameId)
-    animationFrameId = requestAnimationFrame(renderScreen)
+  window.addEventListener("keypress", event => {
+    const keysMap = new Map<string, Direction>()
+
+    keysMap.set("w", "UP")
+    keysMap.set("a", "LEFT")
+    keysMap.set("s", "DOWN")
+    keysMap.set("d", "RIGHT")
+
+    const movement = keysMap.get(event.key)
+    if (!movement)
+      return
+
+    socket.emit("movement", movement)
+  })
+})
+
+socket.on("maze", data => {
+  mazeData = data
+
+  if (!isRendering) {
+    requestAnimationFrame(renderScreen)
+    isRendering = true
+  }
 })
