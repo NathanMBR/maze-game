@@ -1,3 +1,4 @@
 export * from "./getRandomInteger"
-export * from "./isMazeTileOccupied"
 export * from "./checkMazeWay"
+export * from "./isMazeTileOccupied"
+export * from "./isMazeTileAvailable"
