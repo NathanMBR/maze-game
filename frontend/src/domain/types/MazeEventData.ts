@@ -8,5 +8,5 @@ export type MazeEventData = {
     width: number
     height: number
   }
-  player: Player
+  players: Array<Player>
 }
