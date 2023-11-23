@@ -1,3 +1,5 @@
 export * from "./Maze"
 export * from "./CoordinatesResolver"
 export * from "./Coordinates"
+export * from "./Player"
+export * from "./Direction"
