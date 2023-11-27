@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node .",
-    "qs": "tsc && node -r dotenv/config --enable-source-maps ."
+    "qs": "ts-node-dev --require dotenv/config --enable-source-maps -- ./src/index.ts"
   },
   "dependencies": {
     "socket.io": "^4.7.2"
