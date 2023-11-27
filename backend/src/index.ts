@@ -34,10 +34,17 @@ io.on("connection", socket => {
 
   const emptyMazeTiles = maze.map((row, y) => {
     return row.map((tile, x) => {
-      if (tile === 0)
-        return { x, y }
+      const isPathTile = tile === 0
+      const hasPlayerInCurrentCoordinates = Array.from(players.values()).some(({ position }) => position.x === x && position.y === y)
 
-      return null
+      const isTileEmpty =
+        isPathTile &&
+        !hasPlayerInCurrentCoordinates
+
+      if (!isTileEmpty)
+        return null
+
+      return { x, y }
     }).filter(tile => !!tile) as Array<{ x: number, y: number }>
   }).reduce((list, row) => {
     list.push(...row)
@@ -47,10 +54,12 @@ io.on("connection", socket => {
   const randomStartPositionIndex = getRandomInteger(0, emptyMazeTiles.length - 1)
   const randomStartPosition = emptyMazeTiles[randomStartPositionIndex]
 
-  players.set(socket.id, {
-    id: playerId,
-    position: randomStartPosition
-  })
+  const isPlayerAlreadyConnected = players.has(playerId)
+  if (!isPlayerAlreadyConnected)
+    players.set(playerId, {
+      id: playerId,
+      position: randomStartPosition
+    })
 
   const sendState = () => {
     io.emit("maze", {
