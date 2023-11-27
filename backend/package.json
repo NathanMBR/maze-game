@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/node": "^20.9.0",
     "dotenv": "^16.3.1",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.2.2"
   }
 }
