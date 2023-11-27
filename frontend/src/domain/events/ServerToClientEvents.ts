@@ -1,4 +1,4 @@
-import { MazeEventData } from "./MazeEventData"
+import { MazeEventData } from "../types/MazeEventData"
 
 export type ServerToClientEvents = {
   maze: (data: MazeEventData) => void
