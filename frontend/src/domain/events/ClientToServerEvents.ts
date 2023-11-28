@@ -1,5 +1,6 @@
 import { Direction } from "../types/Direction";
 
 export type ClientToServerEvents = {
-  movement: (direction: Direction) => void,
+  walk: (direction: Direction) => void
+  shoot: (direction: Direction) => void
 }

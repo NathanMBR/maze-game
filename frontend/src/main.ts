@@ -1,12 +1,12 @@
 import './style.css'
 
-import { io, Socket } from "socket.io-client"
+import { io, type Socket } from "socket.io-client"
 
-import {
+import type {
   ServerToClientEvents,
   ClientToServerEvents,
   MazeEventData,
-  Direction,
+  Direction
 } from "./domain"
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game")!
@@ -74,19 +74,40 @@ const renderScreen = () => {
 socket.on("connect", () => {
   socketId = socket.id
 
-  window.addEventListener("keypress", event => {
-    const keysMap = new Map<string, Direction>()
+  window.addEventListener("keydown", event => {
+    type WalkMovement = {
+      event: "walk"
+      data: Direction
+    }
 
-    keysMap.set("w", "UP")
-    keysMap.set("a", "LEFT")
-    keysMap.set("s", "DOWN")
-    keysMap.set("d", "RIGHT")
+    type ShootMovement = {
+      event: "shoot"
+      data: Direction
+    }
 
-    const movement = keysMap.get(event.key)
+    type Movements =
+      WalkMovement |
+      ShootMovement
+
+    const movementsMap = new Map<string, Movements>()
+
+    // walk
+    movementsMap.set("w", { event: "walk", data: "UP" })
+    movementsMap.set("a", { event: "walk", data: "LEFT"})
+    movementsMap.set("s", { event: "walk", data: "DOWN" })
+    movementsMap.set("d", { event: "walk", data: "RIGHT" })
+
+    // shoot
+    movementsMap.set("ArrowUp", { event: "shoot", data: "UP" })
+    movementsMap.set("ArrowLeft", { event: "shoot", data: "LEFT" })
+    movementsMap.set("ArrowDown", { event: "shoot", data: "DOWN" })
+    movementsMap.set("ArrowRight", { event: "shoot", data: "RIGHT" })
+
+    const movement = movementsMap.get(event.key)
     if (!movement)
       return
 
-    socket.emit("movement", movement)
+    socket.emit(movement.event, movement.data)
   })
 })
 
