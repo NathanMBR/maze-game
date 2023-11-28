@@ -75,7 +75,7 @@ io.on("connection", socket => {
 
   sendState()
 
-  socket.on("movement", direction => {
+  socket.on("walk", direction => {
     const player = players.get(playerId)
     if (!player)
       return
@@ -98,7 +98,7 @@ io.on("connection", socket => {
   })
 
   socket.on("disconnect", () => {
-    players.delete(socket.id)
+    players.delete(playerId)
 
     sendState()
   })
