@@ -13,12 +13,14 @@ const canvas = document.querySelector<HTMLCanvasElement>("#game")!
 const ctx = canvas.getContext("2d")!
 const deathMessageHolder = document.querySelector<HTMLHeadingElement>("#death")!
 
-const gameProportionInPixels = 10
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io("http://localhost:3000")
+const { hostname } = window.location
+const socketUrl = hostname === "localhost" ? "localhost:3000" : hostname
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(socketUrl)
 
 let mazeData: MazeEventData
 let socketId = ""
 let isRendering = false
+const gameProportionInPixels = 10
 
 const renderScreen = () => {
   if (!isRendering)
