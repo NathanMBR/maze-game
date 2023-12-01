@@ -1,22 +1,27 @@
 import { Server } from "socket.io"
+import { randomUUID } from "node:crypto"
 
 import {
-  Player,
+  type Player,
+  type ClientToServerEvents,
+  type ServerToClientEvents,
+  type Coordinates,
+  type Bullet,
   createMatrix,
   getMazePath,
-  getPixelRepresentation,
-  ClientToServerEvents,
-  ServerToClientEvents,
-  Coordinates
+  getPixelRepresentation
 } from "./domain"
 import {
   getRandomInteger,
-  isMazeTileAvailable
+  isMazeTileAvailable,
+  isCoordinateOutOfMap,
+  waitTimeInMilliseconds
 } from './utils';
 import { PORT } from "./settings"
 
 const mazeWidth = 10
 const mazeHeight = 10
+const shootDelayInMilliseconds = 500
 
 const mazePath = getMazePath(createMatrix(mazeWidth, mazeHeight))
 const maze = getPixelRepresentation(mazePath)
@@ -28,6 +33,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(PORT, {
 })
 
 const players = new Map<string, Player>()
+const bullets = new Map<string, Bullet>()
 
 io.on("connection", socket => {
   const playerId = socket.id
@@ -58,7 +64,8 @@ io.on("connection", socket => {
   if (!isPlayerAlreadyConnected)
     players.set(playerId, {
       id: playerId,
-      position: randomStartPosition
+      position: randomStartPosition,
+      lastShotAt: 0
     })
 
   const sendState = () => {
@@ -69,7 +76,8 @@ io.on("connection", socket => {
         width: mazeWidth,
         height: mazeHeight
       },
-      players: Array.from(players.values())
+      players: Array.from(players.values()),
+      bullets: Array.from(bullets.values())
     })
   }
 
@@ -94,6 +102,81 @@ io.on("connection", socket => {
       position
     })
 
+    sendState()
+  })
+
+  socket.on("shoot", async direction => {
+    const player = players.get(playerId)
+    if (!player)
+      return
+
+    if (player.lastShotAt + shootDelayInMilliseconds > Date.now())
+      return
+
+    players.set(playerId, {
+      ...player,
+      lastShotAt: Date.now()
+    })
+
+    const bulletId = randomUUID()
+    const bullet: Bullet = {
+      id: bulletId,
+      position: {
+        x: player.position.x,
+        y: player.position.y
+      }
+    }
+
+    bullets.set(bulletId, bullet)
+
+    let isBulletOffTheMap = false
+    let hasBulletCollided = false
+
+    do {
+      if (direction === "RIGHT")
+        bullet.position.x += 1
+
+      if (direction === "LEFT")
+        bullet.position.x -= 1
+
+      if (direction === "DOWN")
+        bullet.position.y += 1
+
+      if (direction === "UP")
+        bullet.position.y -= 1
+
+      isBulletOffTheMap = isCoordinateOutOfMap(maze, bullet.position.x, bullet.position.y)
+      if (isBulletOffTheMap) {
+        bullets.delete(bulletId)
+        sendState()
+        return
+      }
+
+      const playersList = Array.from(players.entries()).map(([_id, player]) => player)
+      const playerInBulletPosition = playersList.find(player => player.position.x === bullet.position.x && player.position.y === bullet.position.y)
+      if (playerInBulletPosition) {
+        hasBulletCollided = true
+
+        players.delete(playerInBulletPosition.id)
+      }
+
+      const tileInBulletPosition = maze[bullet.position.y][bullet.position.x]
+      if (tileInBulletPosition === 1) {
+        hasBulletCollided = true
+
+        const randomInteger = getRandomInteger(1, 5)
+        if (randomInteger === 1)
+          maze[bullet.position.y][bullet.position.x] = 0
+      }
+
+      sendState()
+      await waitTimeInMilliseconds(30)
+    } while (
+      !isBulletOffTheMap &&
+      !hasBulletCollided
+    )
+
+    bullets.delete(bulletId)
     sendState()
   })
 
