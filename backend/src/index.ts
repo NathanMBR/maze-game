@@ -1,5 +1,6 @@
 import { Server } from "socket.io"
 import { randomUUID } from "node:crypto"
+import { createServer } from "node:http"
 
 import {
   type Player,
@@ -26,7 +27,8 @@ const shootDelayInMilliseconds = 500
 const mazePath = getMazePath(createMatrix(mazeWidth, mazeHeight))
 const maze = getPixelRepresentation(mazePath)
 
-const io = new Server<ClientToServerEvents, ServerToClientEvents>(PORT, {
+const httpServer = createServer()
+const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
     origin: "*"
   }
@@ -189,4 +191,5 @@ io.on("connection", socket => {
   })
 })
 
+httpServer.listen(PORT)
 console.log(`Server started at port ${PORT}`)
