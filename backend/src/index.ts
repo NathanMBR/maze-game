@@ -155,9 +155,11 @@ io.on("connection", socket => {
       const playersList = Array.from(players.entries()).map(([_id, player]) => player)
       const playerInBulletPosition = playersList.find(player => player.position.x === bullet.position.x && player.position.y === bullet.position.y)
       if (playerInBulletPosition) {
-        hasBulletCollided = true
+        const shotPlayerId = playerInBulletPosition.id
 
-        players.delete(playerInBulletPosition.id)
+        hasBulletCollided = true
+        players.delete(shotPlayerId)
+        socket.to(shotPlayerId).emit("death")
       }
 
       const tileInBulletPosition = maze[bullet.position.y][bullet.position.x]
