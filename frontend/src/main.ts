@@ -11,6 +11,7 @@ import type {
 
 const canvas = document.querySelector<HTMLCanvasElement>("#game")!
 const ctx = canvas.getContext("2d")!
+const deathMessageHolder = document.querySelector<HTMLHeadingElement>("#death")!
 
 const gameProportionInPixels = 10
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io("http://localhost:3000")
@@ -83,44 +84,46 @@ const renderScreen = () => {
   requestAnimationFrame(renderScreen)
 }
 
+const keyboardListener = (event: KeyboardEvent) => {
+  type WalkMovement = {
+    event: "walk"
+    data: Direction
+  }
+
+  type ShootMovement = {
+    event: "shoot"
+    data: Direction
+  }
+
+  type Movements =
+    WalkMovement |
+    ShootMovement
+
+  const movementsMap = new Map<string, Movements>()
+
+  // walk
+  movementsMap.set("w", { event: "walk", data: "UP" })
+  movementsMap.set("a", { event: "walk", data: "LEFT"})
+  movementsMap.set("s", { event: "walk", data: "DOWN" })
+  movementsMap.set("d", { event: "walk", data: "RIGHT" })
+
+  // shoot
+  movementsMap.set("ArrowUp", { event: "shoot", data: "UP" })
+  movementsMap.set("ArrowLeft", { event: "shoot", data: "LEFT" })
+  movementsMap.set("ArrowDown", { event: "shoot", data: "DOWN" })
+  movementsMap.set("ArrowRight", { event: "shoot", data: "RIGHT" })
+
+  const movement = movementsMap.get(event.key)
+  if (!movement)
+    return
+
+  socket.emit(movement.event, movement.data)
+}
+
 socket.on("connect", () => {
   socketId = socket.id
 
-  window.addEventListener("keydown", event => {
-    type WalkMovement = {
-      event: "walk"
-      data: Direction
-    }
-
-    type ShootMovement = {
-      event: "shoot"
-      data: Direction
-    }
-
-    type Movements =
-      WalkMovement |
-      ShootMovement
-
-    const movementsMap = new Map<string, Movements>()
-
-    // walk
-    movementsMap.set("w", { event: "walk", data: "UP" })
-    movementsMap.set("a", { event: "walk", data: "LEFT"})
-    movementsMap.set("s", { event: "walk", data: "DOWN" })
-    movementsMap.set("d", { event: "walk", data: "RIGHT" })
-
-    // shoot
-    movementsMap.set("ArrowUp", { event: "shoot", data: "UP" })
-    movementsMap.set("ArrowLeft", { event: "shoot", data: "LEFT" })
-    movementsMap.set("ArrowDown", { event: "shoot", data: "DOWN" })
-    movementsMap.set("ArrowRight", { event: "shoot", data: "RIGHT" })
-
-    const movement = movementsMap.get(event.key)
-    if (!movement)
-      return
-
-    socket.emit(movement.event, movement.data)
-  })
+  window.addEventListener("keydown", keyboardListener)
 })
 
 socket.on("maze", data => {
@@ -130,4 +133,9 @@ socket.on("maze", data => {
     requestAnimationFrame(renderScreen)
     isRendering = true
   }
+})
+
+socket.on("death", () => {
+  window.removeEventListener("keydown", keyboardListener)
+  deathMessageHolder.innerText = "You died (press F5 to retry)"
 })
