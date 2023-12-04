@@ -97,9 +97,15 @@ const keyboardListener = (event: KeyboardEvent) => {
     data: Direction
   }
 
+  type ExplodeMovement = {
+    event: "explode"
+    data?: undefined
+  }
+
   type Movements =
     WalkMovement |
-    ShootMovement
+    ShootMovement |
+    ExplodeMovement
 
   const movementsMap = new Map<string, Movements>()
 
@@ -115,11 +121,14 @@ const keyboardListener = (event: KeyboardEvent) => {
   movementsMap.set("ArrowDown", { event: "shoot", data: "DOWN" })
   movementsMap.set("ArrowRight", { event: "shoot", data: "RIGHT" })
 
+  // explode
+  movementsMap.set("b", { event: "explode" })
+
   const movement = movementsMap.get(event.key)
   if (!movement)
     return
 
-  socket.emit(movement.event, movement.data)
+  socket.emit(movement.event, movement.data as any)
 }
 
 socket.on("connect", () => {
