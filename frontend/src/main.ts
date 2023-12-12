@@ -122,7 +122,7 @@ const keyboardListener = (event: KeyboardEvent) => {
   movementsMap.set("ArrowRight", { event: "shoot", data: "RIGHT" })
 
   // explode
-  movementsMap.set("b", { event: "explode" })
+  movementsMap.set("q", { event: "explode" })
 
   const movement = movementsMap.get(event.key)
   if (!movement)
