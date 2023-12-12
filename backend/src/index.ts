@@ -21,10 +21,11 @@ import {
 } from './utils';
 import { PORT } from "./settings"
 
-const mazeWidth = 10
-const mazeHeight = 10
+const mazeWidth = 20
+const mazeHeight = 20
 const shootDelayInMilliseconds = 500
 const explosionRadiusInTiles = 5
+const initialBombsCount = 3
 
 const mazePath = getMazePath(createMatrix(mazeWidth, mazeHeight))
 const maze = getPixelRepresentation(mazePath)
@@ -70,7 +71,7 @@ io.on("connection", socket => {
       id: playerId,
       position: randomStartPosition,
       lastShotAt: 0,
-      bombs: 1
+      bombs: initialBombsCount
     })
 
   const sendState = () => {
