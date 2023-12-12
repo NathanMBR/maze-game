@@ -10,7 +10,8 @@ import {
   type Bullet,
   createMatrix,
   getMazePath,
-  getPixelRepresentation
+  getPixelRepresentation,
+  calculateDistanceBetweenTwoCoordinates
 } from "./domain"
 import {
   getRandomInteger,
@@ -23,6 +24,7 @@ import { PORT } from "./settings"
 const mazeWidth = 10
 const mazeHeight = 10
 const shootDelayInMilliseconds = 500
+const explosionRadiusInTiles = 5
 
 const mazePath = getMazePath(createMatrix(mazeWidth, mazeHeight))
 const maze = getPixelRepresentation(mazePath)
@@ -67,7 +69,8 @@ io.on("connection", socket => {
     players.set(playerId, {
       id: playerId,
       position: randomStartPosition,
-      lastShotAt: 0
+      lastShotAt: 0,
+      bombs: 1
     })
 
   const sendState = () => {
@@ -84,6 +87,11 @@ io.on("connection", socket => {
   }
 
   sendState()
+
+  const killPlayer = (id: string) => {
+    players.delete(id)
+    socket.to(id).emit("death")
+  }
 
   socket.on("walk", direction => {
     const player = players.get(playerId)
@@ -160,8 +168,7 @@ io.on("connection", socket => {
         const shotPlayerId = playerInBulletPosition.id
 
         hasBulletCollided = true
-        players.delete(shotPlayerId)
-        socket.to(shotPlayerId).emit("death")
+        killPlayer(shotPlayerId)
       }
 
       const tileInBulletPosition = maze[bullet.position.y][bullet.position.x]
@@ -181,6 +188,44 @@ io.on("connection", socket => {
     )
 
     bullets.delete(bulletId)
+    sendState()
+  })
+
+  socket.on("explode", () => {
+    const currentPlayer = players.get(playerId)
+    if (!currentPlayer)
+      return
+
+    if (currentPlayer.bombs <= 0)
+      return
+
+    const explosionCenter = currentPlayer.position
+    for (let y = explosionCenter.y - explosionRadiusInTiles; y <= explosionCenter.y + explosionRadiusInTiles; y++) {
+      for (let x = explosionCenter.x - explosionRadiusInTiles; x <= explosionCenter.x + explosionRadiusInTiles; x++) {
+        const isCurrentCoordinateOutOfMap = isCoordinateOutOfMap(maze, x, y)
+        const tileDistanceToExplosionCenter = calculateDistanceBetweenTwoCoordinates(explosionCenter, { x, y })
+        const isTileInsideExplosionRadius = tileDistanceToExplosionCenter <= explosionRadiusInTiles
+
+        if (!isCurrentCoordinateOutOfMap && isTileInsideExplosionRadius) {
+          maze[y][x] = 0
+        }
+      }
+    }
+
+    players.forEach(player => {
+      if (player.id === currentPlayer.id)
+        return
+
+      const distanceFromPlayerToExplosionCenterInTiles = calculateDistanceBetweenTwoCoordinates(player.position, explosionCenter)
+      if (distanceFromPlayerToExplosionCenterInTiles <= explosionRadiusInTiles)
+        killPlayer(player.id)
+    })
+
+    players.set(playerId, {
+      ...currentPlayer,
+      bombs: currentPlayer.bombs - 1
+    })
+
     sendState()
   })
 
