@@ -4,7 +4,7 @@ import {
   isMazeTileOccupied
 } from "../utils"
 
-import {
+import type {
   Maze,
   CoordinateResolver,
   Coordinates
@@ -172,4 +172,12 @@ export const getPixelRepresentation = (maze: Maze) => {
   }
 
   return pixelRepresentation
+}
+
+export const calculateDistanceBetweenTwoCoordinates = (coordinateA: Coordinates, coordinateB: Coordinates) => {
+  const widthDifference = Math.abs(coordinateA.x - coordinateB.x)
+  const heightDifference = Math.abs(coordinateA.y - coordinateB.y)
+
+  const distance = Math.sqrt(widthDifference ** 2 + heightDifference ** 2)
+  return distance
 }
