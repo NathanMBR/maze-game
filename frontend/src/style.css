@@ -1,6 +1,13 @@
 body {
+  margin: 0;
+}
+
+h1 {
   text-align: center;
-  margin: 0 0 0 0;
+}
+
+#game-container {
+  justify-self: right;
 }
 
 #game {
@@ -8,13 +15,22 @@ body {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   image-rendering: -mor-crisp-edges;
-  margin-top: 10px;
+}
+
+#death {
+  text-align: center;
 }
 
 button {
   margin-top: 10px;
 }
 
-ul {
-  list-style: none;
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+}
+
+section {
+  flex-grow: 1;
 }
