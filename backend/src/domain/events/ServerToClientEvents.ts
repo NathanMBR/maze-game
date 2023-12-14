@@ -1,7 +1,8 @@
-import {
+import type {
   Maze,
   Player,
-  Bullet
+  Bullet,
+  Bomb
 } from "../types"
 
 type MazeEventData = {
@@ -13,6 +14,7 @@ type MazeEventData = {
   }
   players: Array<Player>
   bullets: Array<Bullet>
+  bombs: Array<Bomb>
 }
 
 export type ServerToClientEvents = {
