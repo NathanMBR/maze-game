@@ -1,6 +1,7 @@
-import { Maze } from "./Maze"
-import { Player } from "./Player"
-import { Bullet } from "./Bullet"
+import type { Maze } from "./Maze"
+import type { Player } from "./Player"
+import type { Bullet } from "./Bullet"
+import type { Bomb } from "./Bomb"
 
 export type MazeEventData = {
   mazePath: Maze
@@ -11,4 +12,5 @@ export type MazeEventData = {
   }
   players: Array<Player>
   bullets: Array<Bullet>
+  bombs: Array<Bomb>
 }
