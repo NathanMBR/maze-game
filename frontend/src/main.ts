@@ -30,14 +30,16 @@ const renderScreen = () => {
     dimensions,
     maze,
     players,
-    bullets
+    bullets,
+    bombs
   } = mazeData
 
   const colors = {
     mazeWall: "#000",
     enemyPlayer: "#F00",
     currentPlayer: "#0C0",
-    bullet: "#FC0"
+    bullet: "#FC0",
+    bomb: "#00F"
   }
 
   canvas.width = (2 * dimensions.width - 1) * gameProportionInPixels
@@ -78,6 +80,17 @@ const renderScreen = () => {
     ctx.fillRect(
       bullet.position.x * gameProportionInPixels,
       bullet.position.y * gameProportionInPixels,
+      gameProportionInPixels,
+      gameProportionInPixels
+    )
+  })
+
+  bombs.forEach(bomb => {
+    ctx.fillStyle = colors.bomb
+
+    ctx.fillRect(
+      bomb.position.x * gameProportionInPixels,
+      bomb.position.y * gameProportionInPixels,
       gameProportionInPixels,
       gameProportionInPixels
     )
